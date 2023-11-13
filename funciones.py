@@ -3,8 +3,8 @@ import numpy as np
 def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_columnas = 9): #Ver como hacer el 9 de manera dinamica
     
     #Usamos un bucle while para generar la posicion y orientacion del barco aleatorio hasta que se pueda colocar en el tablero
-    fuera_tablero = False
-    while fuera_tablero == False:
+    barco_colocado = False
+    while barco_colocado == False:
         #Generamos dos números enteros aleatorios entre 0 y 9 que nos dará el origen para colocar el barco
         origen_fila = np.random.randint(10)
         origen_columna = np.random.randint(10)
@@ -16,7 +16,8 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
         #print(f"Se ha generado un barco aleatoriamente de tamaño {tamano_barco} con orientacion {lista_orientacion[orientacion]}")
         #print(f"El barco tiene como origen la fila {origen_fila} y la columna {origen_columna}") 
         
-        #Comprobamos si se puede posicionar el barco suponiendo que inicialmente no esta fuera del tablero (fuera_tablero == False)
+        #Comprobamos si se puede posicionar el barco suponiendo que inicialmente no esta fuera del tablero
+        fuera_tablero = False
         if orientacion == "Norte":
             if origen_fila - (tamano_barco-1) < 0:
                 fuera_tablero = True
@@ -43,6 +44,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
                 
                 if hay_barco == False:   
                     tablero_barcos[origen_fila-(tamano_barco-1):origen_fila+1, origen_columna:origen_columna+1] = "O"
+                    barco_colocado = True
 
             elif orientacion == "Sur":
                 #Se comprueba si ya hay un barco
@@ -51,6 +53,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
 
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+tamano_barco, origen_columna:origen_columna+1] = "O"
+                    barco_colocado = True
             
             elif orientacion == "Este":
                 #Se comprueba si ya hay un barco
@@ -59,6 +62,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
 
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+1, origen_columna:origen_columna+tamano_barco] = "O"
+                    barco_colocado = True
     
             elif orientacion == "Oeste":
                 #Se comprueba si ya hay un barco
@@ -67,6 +71,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
 
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+1, origen_columna-(tamano_barco-1):origen_columna+1] = "O"
+                    barco_colocado = True
         
         #else:
             #print("No se puede posicionar barco aleatorio\n") #Linea para comprobaciones
