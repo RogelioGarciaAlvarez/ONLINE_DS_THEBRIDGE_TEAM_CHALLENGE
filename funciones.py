@@ -1,7 +1,6 @@
 import numpy as np
 
-def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_columnas = 9): #Ver como hacer el 9 de manera dinamica
-    
+def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas , limite_columnas): 
     #Usamos un bucle while para generar la posicion y orientacion del barco aleatorio hasta que se pueda colocar en el tablero
     barco_colocado = False
     while barco_colocado == False:
@@ -11,11 +10,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
 
         #Creamos una lista con la orientacion y la elegimos aleatoriamente
         orientacion = np.random.choice(["Norte", "Sur", "Este", "Oeste"])
-        
-        #Código para pruebas
-        #print(f"Se ha generado un barco aleatoriamente de tamaño {tamano_barco} con orientacion {lista_orientacion[orientacion]}")
-        #print(f"El barco tiene como origen la fila {origen_fila} y la columna {origen_columna}") 
-        
+     
         #Comprobamos si se puede posicionar el barco suponiendo que inicialmente no esta fuera del tablero
         fuera_tablero = False
         if orientacion == "Norte":
@@ -72,6 +67,39 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas =9 , limite_
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+1, origen_columna-(tamano_barco-1):origen_columna+1] = "O"
                     barco_colocado = True
+
+
+def disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila, coordenada_columna, limite_filas = 9 , limite_columnas = 9):
+    #Comprobamos si todas las coordenadas dadas para el disparo se pueden ubicar en el tablero
+    if coordenada_fila > limite_filas or coordenada_columna > limite_columnas:
+        print(f"Coordenadas incorrectas") 
+        print(f"Recuerda que para las filas debes introducir un número entero comprendido entre el 0 y el 9")
+        print(f"Recuerda que para las columnas debes introducir un número entero comprendido entre el 0 y el 9\n")
+
+    #Se comprueba el elemento que contiene la casilla para sustituir el espacio vacio por el caracter adecuado
+    else:
+        tocado = False
+        casilla = tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1]
+
+        if casilla == "O": 
+            tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "X"
+            tablero_registro_disparo[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "X"
+            tocado = True
+            return tocado
         
-        #else:
-            #print("No se puede posicionar barco aleatorio\n") #Linea para comprobaciones
+        elif casilla == "X":
+            print("Ya habia un disparo en esas coordenadas")
+            tocado = True
+            return tocado
+        
+        else:
+            tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "-"
+            tablero_registro_disparo[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "-"
+            tocado = False
+            return tocado
+
+
+def fin_juego(tablero_barcos): 
+    fin = not(np.any(np.isin(tablero_barcos, "O")))
+    return fin 
+
