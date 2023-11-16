@@ -5,8 +5,8 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas , limite_col
     barco_colocado = False
     while barco_colocado == False:
         #Generamos dos números enteros aleatorios entre 0 y 9 que nos dará el origen para colocar el barco
-        origen_fila = np.random.randint(10)
-        origen_columna = np.random.randint(10)
+        origen_fila = np.random.randint(limite_filas)
+        origen_columna = np.random.randint(limite_columnas)
 
         #Creamos una lista con la orientacion y la elegimos aleatoriamente
         orientacion = np.random.choice(["Norte", "Sur", "Este", "Oeste"])
@@ -99,7 +99,7 @@ def disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila, coord
             return tocado
 
 
-def fin_juego(tablero_barcos): 
+def comprobar_fin_juego(tablero_barcos): 
     fin = not(np.any(np.isin(tablero_barcos, "O")))
     return fin 
 
