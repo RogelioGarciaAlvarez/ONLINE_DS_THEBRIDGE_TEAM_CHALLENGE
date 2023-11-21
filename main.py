@@ -53,14 +53,14 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
 
         if usuario == True: #Si le toca al usuario
 
-            print("Tu tablero de registro de disparos:")
-            print(tablero_usuario.tablero_registro_disparos,"\n")
+            #print("Tu tablero de registro de disparos:")
+            #print(tablero_usuario.tablero_registro_disparos,"\n")
 
-            print("Tu tablero de barcos:")
-            print(tablero_usuario.tablero_barcos,"\n")
+            #print("Tu tablero de barcos:")
+            #print(tablero_usuario.tablero_barcos,"\n")
 
             tablero_a_disparar = tablero_maquina.tablero_barcos #Dispara el usuario
-            tablero_registro_disparo = tablero_usuario.tablero_registro_disparos #se guardan los disparos hechos por el usuario
+            tablero_registro_disparo = tablero_usuario.tablero_registro_disparos #Se guardan los disparos hechos por el usuario
 
             continuar = True
             while continuar == True:
@@ -74,11 +74,9 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
 
                 continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, int(coordenadas_lista[0]), int(coordenadas_lista[1])) 
 
-                #print("Tu tablero de registro de disparos:")
-                #print(tablero_usuario.tablero_registro_disparos)
-
-                #print("Tu tablero de barcos:")
-                #print(tablero_usuario.tablero_barcos)
+                #Se muestra el tablero de registro de disparos del usuario
+                print("Tu tablero de registro de disparos:")
+                print(tablero_usuario.tablero_registro_disparos)
                 
                 fin_juego = funciones.comprobar_fin_juego(tablero_a_disparar)
             
@@ -102,12 +100,6 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
                     coordenada_columna_maquina = np.random.randint(0,variables.DIMENSION_COLUMNA)
 
                     continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila_maquina, coordenada_columna_maquina)
-
-                    #print("Tablero registro disparo maquina")
-                    #print(tablero_maquina.tablero_registro_disparos)
-
-                    #print("Tablero disparos recibidos maquina")
-                    #print(tablero_maquina.tablero_barcos,"\n")
                     
                     fin_juego = funciones.comprobar_fin_juego(tablero_a_disparar)
 
@@ -115,6 +107,11 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
                         print("Ha ganado la máquina")
                         sys.exit()
 
+
+            #Se muestra el tablero de barcos del usuario
+            print("La máquina ha disparado. Asi ha quedado tu tablero de barcos:")
+            print(tablero_usuario.tablero_barcos)
+            
             usuario = True
 else:
     print("La dificultad elegida no es válida. Vuelve a empezar")

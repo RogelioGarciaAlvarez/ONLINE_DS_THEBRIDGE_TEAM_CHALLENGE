@@ -73,30 +73,35 @@ def disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila, coord
     #Comprobamos si todas las coordenadas dadas para el disparo se pueden ubicar en el tablero
     if coordenada_fila > limite_filas or coordenada_columna > limite_columnas:
         print(f"Coordenadas incorrectas") 
-        print(f"Recuerda que para las filas debes introducir un número entero comprendido entre el 0 y el 9")
-        print(f"Recuerda que para las columnas debes introducir un número entero comprendido entre el 0 y el 9\n")
-
-    #Se comprueba el elemento que contiene la casilla para sustituir el espacio vacio por el caracter adecuado
+        print(f"Recuerda que para las filas y las columnas debes introducir un número entero comprendido entre el 0 y el 9\n")
+        continuar = True
+        return continuar
+    
+    #Se comprueba el elemento que contiene la casilla para sustituir por el caracter adecuado
     else:
-        tocado = False
+        #Inicializamos la variable continuar en False
+        continuar = False
         casilla = tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1]
 
         if casilla == "O": 
             tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "X"
             tablero_registro_disparo[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "X"
-            tocado = True
-            return tocado
+            continuar = True
+            return continuar
         
         elif casilla == "X":
-            print("Ya habia un disparo en esas coordenadas")
-            tocado = True
-            return tocado
+            continuar = True
+            return continuar
         
+        elif casilla == "-":
+            continuar = True
+            return continuar
+
         else:
             tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "-"
             tablero_registro_disparo[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "-"
-            tocado = False
-            return tocado
+            continuar = False
+            return continuar
 
 
 def comprobar_fin_juego(tablero_barcos): 
