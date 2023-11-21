@@ -15,7 +15,7 @@ print("-Cuando sea tu turno tendrás que introducir las coordenadas de fila, pri
 print("-El orden de las filas y columnas es de arriba a abajo y de izquierda a derecha")
 print("-Cada vez que aciertes te vuelve a tocar disparar. Si fallas, es el turno de la máquina que te disparará aleatoriamente")
 print("-El juego finalizará cuando se hundan todos los barcos de algun jugador")
-print("-Para salir el juego antes de que se hundan todos los barcos introduce la palabra 'exit' (sin comillas)\n")
+print("-Para salir del juego antes de que se hundan todos los barcos introduce la palabra 'exit' (sin comillas)\n")
 
 
 #Se crean los tableros del usuario y de la máquina
@@ -38,11 +38,11 @@ dificultad = input("Indica la dificultad del juego entre estas opciones: facil, 
 #Seleccionamos la cantidad de disparos de la máquina en funcion de la dificultad
 if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
 
-    if dificultad =="facil":
+    if dificultad =="facil": #si la dificultad es facil, la maquina tiene un disparo
         repeticion_maquina = 1
-    elif dificultad =="media":
+    elif dificultad =="media": #si la dificultad es media, la maquina tiene dos disparos
         repeticion_maquina = 2
-    elif dificultad =="dificil":
+    elif dificultad =="dificil": #si la dificultad es dificil, la maquina tiene tres disparos
         repeticion_maquina = 3
 
     #Iniciamos el juego con un while que finalizará si el usuario indica "exit" o no hay barcos en algun tablero
@@ -67,7 +67,8 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
                 
                 coordenadas_str = input("Tu turno. Introduce la coordenada de la fila y la coordenada de la columna separadas por coma:")
                 coordenadas_lista = coordenadas_str.split(",")
-
+                
+                #Si el usuario introduce "exit", se acaba el juego
                 if coordenadas_lista[0] == "exit":
                     print("Ha finalizado el juego")
                     sys.exit()
@@ -78,8 +79,9 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
                 print("Tu tablero de registro de disparos:")
                 print(tablero_usuario.tablero_registro_disparos)
                 
+                #Se comprueba si todos los barcos de la maquina han sido tocados
                 fin_juego = funciones.comprobar_fin_juego(tablero_a_disparar)
-            
+                #En caso de que todos los barcos de la maquina esten tocados, el juego termina y el usuario gana
                 if fin_juego == True: 
                     print("Has ganado")
                     sys.exit()
@@ -101,8 +103,11 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
 
                     continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila_maquina, coordenada_columna_maquina)
                     
+                    #Se comprueba si todos los barcos del usuario han sido tocados
                     fin_juego = funciones.comprobar_fin_juego(tablero_a_disparar)
-
+                    
+                    #En caso de que todos los barcos del usuario esten tocados, el juego termina y la maquina
+                    #  gana
                     if fin_juego == True: 
                         print("Ha ganado la máquina")
                         sys.exit()
@@ -113,5 +118,7 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
             print(tablero_usuario.tablero_barcos)
             
             usuario = True
+
+#Si el usuario no ha introducido correctamente la dificultad, se pide volver a empezar
 else:
     print("La dificultad elegida no es válida. Vuelve a empezar")
