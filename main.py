@@ -32,7 +32,6 @@ for barco in variables.lista_barcos:
         funciones.posicionar_aleatorio(tablero_maquina.tablero_barcos, tamano_barco, variables.DIMENSION_FILA-1, variables.DIMENSION_COLUMNA-1)
 
 #Preguntamos al usuario la dificultad en la que quiere jugar
-
 dificultad = input("Indica la dificultad del juego entre estas opciones: facil, media y dificil:").lower()
 
 #Seleccionamos la cantidad de disparos de la máquina en funcion de la dificultad
@@ -49,22 +48,17 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
     fin_juego = False
     usuario = True
 
-    while fin_juego == False:
+    while True:
 
         if usuario == True: #Si le toca al usuario
-
-            #print("Tu tablero de registro de disparos:")
-            #print(tablero_usuario.tablero_registro_disparos,"\n")
-
-            #print("Tu tablero de barcos:")
-            #print(tablero_usuario.tablero_barcos,"\n")
 
             tablero_a_disparar = tablero_maquina.tablero_barcos #Dispara el usuario
             tablero_registro_disparo = tablero_usuario.tablero_registro_disparos #Se guardan los disparos hechos por el usuario
 
             continuar = True
-            while continuar == True:
+            while continuar == True: #Usamos el bucle while para disparar hasta que fallemos o hundamos todos los barcos
                 
+                #Pedimos al usuario que introduzca las coordenadas y las guardamos en una lista
                 coordenadas_str = input("Tu turno. Introduce la coordenada de la fila y la coordenada de la columna separadas por coma:")
                 coordenadas_lista = coordenadas_str.split(",")
                 
@@ -73,7 +67,8 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
                     print("Ha finalizado el juego")
                     sys.exit()
 
-                continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, int(coordenadas_lista[0]), int(coordenadas_lista[1])) 
+                continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, int(coordenadas_lista[0]), int(coordenadas_lista[1]), \
+                                              variables.DIMENSION_FILA-1, variables.DIMENSION_COLUMNA-1) #Devuelve True si se debe seguir disparando y False en caso contrario
 
                 #Se muestra el tablero de registro de disparos del usuario
                 print("Tu tablero de registro de disparos:")
@@ -81,33 +76,35 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
                 
                 #Se comprueba si todos los barcos de la maquina han sido tocados
                 fin_juego = funciones.comprobar_fin_juego(tablero_a_disparar)
+                
                 #En caso de que todos los barcos de la maquina esten tocados, el juego termina y el usuario gana
                 if fin_juego == True: 
                     print("Has ganado")
                     sys.exit()
             
-            usuario = False
+            usuario = False #Cambiamos para que sea el turno de la máquina
 
         elif usuario == False: #Si le toca a la máquina
 
             tablero_a_disparar = tablero_usuario.tablero_barcos #Dispara la maquina
             tablero_registro_disparo = tablero_maquina.tablero_registro_disparos #se guardan los disparos hechos por la maquina
             
+            #Se usa un bucle for para que la máquina tenga tantos disparos como dificultad elegida
             for disparo_maquina in range(repeticion_maquina):
 
                 continuar = True
-                while continuar == True:
+                while continuar == True: #Usamos el bucle while para que la máquina dispare hasta que falle o hunda todos los barcos
                     
-                    coordenada_fila_maquina = np.random.randint(0,variables.DIMENSION_FILA)
-                    coordenada_columna_maquina = np.random.randint(0,variables.DIMENSION_COLUMNA)
+                    coordenada_fila_maquina = np.random.randint(0,variables.DIMENSION_FILA) #Genera coordenadas de disparo aleatorias
+                    coordenada_columna_maquina = np.random.randint(0,variables.DIMENSION_COLUMNA) #Genera coordenadas de disparo aleatorias
 
-                    continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila_maquina, coordenada_columna_maquina)
+                    continuar = funciones.disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila_maquina, coordenada_columna_maquina, \
+                                                  variables.DIMENSION_FILA-1, variables.DIMENSION_COLUMNA-1) #Devuelve True si se debe seguir disparando y False en caso contrario
                     
                     #Se comprueba si todos los barcos del usuario han sido tocados
                     fin_juego = funciones.comprobar_fin_juego(tablero_a_disparar)
                     
-                    #En caso de que todos los barcos del usuario esten tocados, el juego termina y la maquina
-                    #  gana
+                    #En caso de que todos los barcos del usuario esten tocados, el juego termina y la maquina gana
                     if fin_juego == True: 
                         print("Ha ganado la máquina")
                         sys.exit()
@@ -117,7 +114,7 @@ if dificultad == "facil" or dificultad == "media" or dificultad == "dificil":
             print("La máquina ha disparado. Asi ha quedado tu tablero de barcos:")
             print(tablero_usuario.tablero_barcos)
             
-            usuario = True
+            usuario = True #Cambiamos para que sea el turno del usuario
 
 #Si el usuario no ha introducido correctamente la dificultad, se pide volver a empezar
 else:

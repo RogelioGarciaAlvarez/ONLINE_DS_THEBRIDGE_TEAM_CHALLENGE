@@ -14,6 +14,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas , limite_col
      
         #Comprobamos si se puede posicionar el barco suponiendo que inicialmente no esta fuera del tablero
         fuera_tablero = False
+
         #Cubrimos los casos en los que los barcos quedarian fuera del tablero en todas las orientaciones
         if orientacion == "Norte":
             if origen_fila - (tamano_barco-1) < 0:
@@ -47,7 +48,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas , limite_col
             elif orientacion == "Sur":
                 #Se comprueba si ya hay un barco
                 barco_aleatorio = tablero_barcos[origen_fila:origen_fila+tamano_barco, origen_columna:origen_columna+1]
-                hay_barco = np.any(np.isin(barco_aleatorio, "O")) or np.any(np.isin(barco_aleatorio, "X"))
+                hay_barco = np.any(np.isin(barco_aleatorio, "O")) or np.any(np.isin(barco_aleatorio, "X")) #Comprueba si hay algun True en la lista que genera .isin
                 #Si no hay un barco, continuamos
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+tamano_barco, origen_columna:origen_columna+1] = "O"
@@ -56,7 +57,7 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas , limite_col
             elif orientacion == "Este":
                 #Se comprueba si ya hay un barco
                 barco_aleatorio = tablero_barcos[origen_fila:origen_fila+1, origen_columna:origen_columna+tamano_barco]
-                hay_barco = np.any(np.isin(barco_aleatorio, "O")) or np.any(np.isin(barco_aleatorio, "X"))
+                hay_barco = np.any(np.isin(barco_aleatorio, "O")) or np.any(np.isin(barco_aleatorio, "X")) #Comprueba si hay algun True en la lista que genera .isin
                 #Si no hay un barco, continuamos
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+1, origen_columna:origen_columna+tamano_barco] = "O"
@@ -65,19 +66,19 @@ def posicionar_aleatorio(tablero_barcos, tamano_barco, limite_filas , limite_col
             elif orientacion == "Oeste":
                 #Se comprueba si ya hay un barco
                 barco_aleatorio = tablero_barcos[origen_fila:origen_fila+1, origen_columna-(tamano_barco-1):origen_columna+1]
-                hay_barco = np.any(np.isin(barco_aleatorio, "O")) or np.any(np.isin(barco_aleatorio, "X"))
+                hay_barco = np.any(np.isin(barco_aleatorio, "O")) or np.any(np.isin(barco_aleatorio, "X")) #Comprueba si hay algun True en la lista que genera .isin
                 #Si no hay un barco, continuamos
                 if hay_barco == False:
                     tablero_barcos[origen_fila:origen_fila+1, origen_columna-(tamano_barco-1):origen_columna+1] = "O"
                     barco_colocado = True
 
 #Definimos la funcion para disparar barcos
-def disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila, coordenada_columna, limite_filas = 9 , limite_columnas = 9):
+def disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila, coordenada_columna, limite_filas , limite_columnas):
     #Comprobamos si todas las coordenadas dadas para el disparo se pueden ubicar dentro del tablero
     if coordenada_fila > limite_filas or coordenada_columna > limite_columnas: #si las coordenadas de fila y columna son mayores que los limites de fila y columna, error
-        print(f"Coordenadas incorrectas") 
-        print(f"Recuerda que para las filas y las columnas debes introducir un número entero comprendido entre el 0 y el 9\n")
-        continuar = True
+        print(f"Coordenadas incorrectas. Recuerda que para las filas y las columnas debes introducir un número entero comprendido entre el 0 y el 9\n")
+        
+        continuar = True #Vuelve a tocar disparar
         return continuar
     
     #Se comprueba el elemento que contiene la casilla para sustituir por el caracter adecuado
@@ -90,24 +91,24 @@ def disparo(tablero_a_disparar, tablero_registro_disparo, coordenada_fila, coord
         if casilla == "O": 
             tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "X"
             tablero_registro_disparo[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "X"
-            continuar = True
+            continuar = True #Vuelve a tocar disparar
             return continuar
         
         #si el disparo ha tocado un barco, continua
         elif casilla == "X":
-            continuar = True
+            continuar = True #Vuelve a tocar disparar
             return continuar
         
         #Si ya se habia elegido esa coordenada que habia agua, continua
         elif casilla == "-":
-            continuar = True
+            continuar = True #Vuelve a tocar disparar
             return continuar
 
         #Si en la coordenada no habia barco, muestra "-" y cambia el turno
         else:
             tablero_a_disparar[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "-"
             tablero_registro_disparo[coordenada_fila:coordenada_fila+1, coordenada_columna:coordenada_columna+1] = "-"
-            continuar = False
+            continuar = False #Para de disparar
             return continuar
 
 #Definimos la funcion para finalizar el juego
