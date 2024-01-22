@@ -30,10 +30,14 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
     umbral_numerica (float): valor límite para clasificar una variable como numérica continua
 
     Retorna:
-    DataFrame: devuelve un DataFrame con tres columnas: "nombre_variable", "tipo_variable" y "tipo_sugerido".
+    DataFrame: devuelve un DataFrame con cinco columnas: "nombre_variable", "tipo_variable", "cardinalidad", "cardinalidad_porcentaje" y "tipo_sugerido".
     """
     #EXTRA: creamos una lista con el tipo de cada variable
     lista_tipos = []
+    
+    #EXTRA: creamos dos listas para guardar la cardinalidad de cada variable
+    lista_cardinalidad = []
+    lista_cardinalidad_porcentaje = []
     
     #Creamos una lista con la tipificación sugerida para cada variable
     lista_tipificacion = []
@@ -44,8 +48,12 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
         #EXTRA: Guardamos en la lista el tipo de cada variable
         lista_tipos.append(df[columna].dtypes)
         
-        #Calculamos la cardinalidad
+        #EXTRA: calculamos la cardinalidad y la guardamos en las listas
         cardinalidad = df[columna].nunique()
+        lista_cardinalidad.append(cardinalidad)
+    
+        cardinalidad_porcentaje = round(cardinalidad/len(df)*100,2)
+        lista_cardinalidad_porcentaje.append(cardinalidad_porcentaje)
         
         #Clasificamos segun el valor de la cardinalidad
         if cardinalidad == 2:
@@ -64,7 +72,7 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
 
     
     #Creamos el DataFrame con tantas filas como columnas tenga el DataFrame dado a la función
-    df_tipifica = pd.DataFrame({"nombre_variable": df.columns.tolist(), "tipo_variable":lista_tipos, "tipo_sugerido":lista_tipificacion})
+    df_tipifica = pd.DataFrame({"nombre_variable": df.columns.tolist(), "tipo_variable":lista_tipos, "cardinalidad":lista_cardinalidad, "cardinalidad_porcentaje":lista_cardinalidad_porcentaje, "tipo_sugerido":lista_tipificacion})
 
     return df_tipifica 
 
