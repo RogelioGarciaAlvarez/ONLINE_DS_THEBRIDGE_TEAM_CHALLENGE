@@ -1,6 +1,9 @@
 #Importamos las librerías
+import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
+from scipy.stats import pearsonr
 
 #Función describe_df (encargado: Marion)
 def describe_df():
@@ -25,14 +28,15 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
     Función que sugiere tipos para la tipificación de las variables (columnas) de un DataFrame.
 
     Argumentos:
-    df (DataFrame): DataFrame cuyas variables queremos tipificar
-    umbral_categoria (int): valor límite para clasificar una variable como categórica
-    umbral_numerica (float): valor límite para clasificar una variable como numérica continua
+    df (DataFrame): DataFrame cuyas variables queremos tipificar.
+    umbral_categoria (int): valor límite para clasificar una variable como categórica.
+    umbral_numerica (float): valor límite para clasificar una variable como numérica continua.
 
     Retorna:
     DataFrame: devuelve un DataFrame con cinco columnas: "nombre_variable", "tipo_variable", "cardinalidad", "cardinalidad_porcentaje" y "tipo_sugerido".
     """
-    #EXTRA: creamos una lista con el tipo de cada variable
+    
+    #Creamos una lista con el tipo de cada variable
     lista_tipos = []
     
     #EXTRA: creamos dos listas para guardar la cardinalidad de cada variable
@@ -45,10 +49,10 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
     #Sugerimos la tipificación de la variable y la guardamos en la lista
     for columna in df.columns:
         
-        #EXTRA: Guardamos en la lista el tipo de cada variable
+        #Guardamos en la lista el tipo de cada variable
         lista_tipos.append(df[columna].dtypes)
         
-        #EXTRA: calculamos la cardinalidad y la guardamos en las listas
+        #Calculamos la cardinalidad y la guardamos en las listas
         cardinalidad = df[columna].nunique()
         lista_cardinalidad.append(cardinalidad)
     
@@ -93,20 +97,167 @@ def get_features_num_regression():
     return "X"
 
 #Función plot_features_num_regression (encargado: Rogelio)
-def plot_features_num_regression():
+def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=0, umbral_pvalue=None, limite_pairplot=5):
+    
     """
-    Descripción breve de lo que hace la función.
+    Función que genera los gráficos pairplot de las variables (columnas) de un DataFrame dada una variable target numérica.
 
     Argumentos:
-    param1 (tipo): Descripción de param1.
-    param2 (tipo): Descripción de param2.
+    df (DataFrame): DataFrame que contiene las variables para las que queremos generar los gráficos pairplot.
+    target_col (string): Nombre de la variable del DataFrame considerada como target.
+    lista_columnas (lista) = Nombres de las columnas del DataFrame para las que queremos generar los gráficos pairplot
+    umbral_corr (float) = valor mínimo de correlación para seleccionar las variables.
+    umbral_pvalue (float) = valor máximo de pvalue para seleccionar las variables.
+    limite_pairplot (int) = valor máximo de variables a generar en los gráficos pairplot.
 
     Retorna:
-    tipo: Descripción de lo que retorna la función.
+    Lista: devuelve una lista con los nombres de las columnas numéricas que cumplen las condiciones.
     """
-    #Cuerpo de la función
     
-    return "X"
+    #Comprobamos que los valores de entrada tienen el tipo correcto
+
+    #Comprobamos para el argumento df
+    error_df = False
+    if not(isinstance(df, pd.DataFrame)):
+        error_df = True
+
+    #Comprobamos para el argumento target_col
+    error_target_col = False
+    if not(isinstance(target_col, str)):
+        error_target_col = True
+
+    if target_col not in df.columns.tolist():
+        error_target_col = True
+    
+    elif df[target_col].dtypes != float:
+        error_target_col = True
+
+    #Comprobamos para el argumento lista_columnas
+    error_lista_columnas = False
+    if not(isinstance(lista_columnas, (list,str))):
+        error_lista_columnas = True
+
+    if lista_columnas == []:
+        error_lista_columnas = True
+
+    for columna in lista_columnas:
+        
+        if columna == target_col:
+            error_lista_columnas = True
+
+        if columna not in df.columns.tolist():
+            error_lista_columnas = True
+
+    #Comprobamos para el argumento umbral_corr
+    error_umbral_corr = False
+    if not(isinstance(umbral_corr, (int, float))):
+        error_umbral_corr = True
+        
+    elif umbral_corr < 0 or umbral_corr > 1:
+        error_umbral_corr = True
+
+    #Comprobamos para el argumento umbral_pvalue
+    error_umbral_pvalue = False
+    if not(isinstance(umbral_pvalue, (int, float))):
+        if umbral_pvalue != None:
+            error_umbral_pvalue = True
+    
+    elif umbral_pvalue < 0 or umbral_pvalue > 1:
+        error_umbral_pvalue = True
+
+    #Comprobamos para el argumento limite_pairplot
+    error_limite_pairplot = False
+    if not(isinstance(limite_pairplot, int)):
+        error_limite_pairplot = True
+
+    elif limite_pairplot < 2:
+        error_limite_pairplot = True
+
+    #Comprobamos si ha habido algñun un error y mostramos el mensaje de error en cada caso
+    error = error_df or error_target_col or error_lista_columnas or error_umbral_corr or error_umbral_pvalue or error_limite_pairplot
+    if error: 
+        if error_df:
+            print("Introduce un DataFrame")
+        elif error_target_col:
+            print("Introduce un string con el nombre de la variable numérica target del DataFrame") 
+        elif error_lista_columnas:
+            print("Introduce una lista con los nombres de las columnas (sin incluir el target) del DataFrame a analizar")   
+        elif error_umbral_corr:
+            print("Introduce un valor entero o decimal para el umbral de correlación y que esté comprendido entre 0.0 y 1.0")   
+        elif error_umbral_pvalue:
+            print("Introduce un valor entero o decimal para el umbral del pvalue y que esté comprendido entre 0.0 y 1.0")
+        elif error_limite_pairplot:
+            print("Introduce un valor entero con el límite de variables a representar en el pairplot y que sea mayor o igual a 2")
+    
+        return None
+        
+    else:
+
+        if lista_columnas == "":
+            #Creamos una lista con las columnas numericas del DataFrame
+            lista_columnas_numericas = []
+
+            for columna in df:
+                
+                try: 
+                    pd.to_numeric(df[columna], errors='raise')
+                    lista_columnas_numericas.append(columna) 
+                
+                except:
+                    pass
+            
+            #Creamos el DataFrame de correlaciones con el target y nos quedamos con las variables que superan el umbral  
+            df_corr = df[lista_columnas_numericas].corr()[[target_col]].abs()
+            lista_columnas_pairplot = df_corr[df_corr[target_col] > umbral_corr].index.tolist()
+
+        else: 
+            
+            lista_columnas.append(target_col)
+            df_corr = df[lista_columnas].corr()[[target_col]].abs()
+            lista_columnas_pairplot = df_corr[df_corr[target_col] > umbral_corr].index.tolist()
+
+        #Comprobamos si supera el test de correlación
+        if umbral_pvalue != None:
+            
+            for columna in lista_columnas_pairplot.copy():
+                #Calculamos el pvalue y comprobamos su valor
+                pvalue = pearsonr(df[target_col], df[columna]).pvalue
+                
+                #print(f"El pvalue de {columna} es {pvalue}") # SOLO PARA PRUEBAS BORRAR ANTES DE ENTREGAR
+                
+                #Si el pvalue es mayor que el umbral se elimina la columna
+                if pvalue > umbral_pvalue:
+                    lista_columnas_pairplot.remove(columna)
+
+        #Eliminamos el target de la lista de columnas para calcular cuántos gráficos hay que generar
+        lista_columnas_pairplot.remove(target_col)
+        num_graficos = (len(lista_columnas_pairplot) // (limite_pairplot-1))
+
+        if len(lista_columnas_pairplot) % (limite_pairplot-1) != 0:
+            num_graficos = num_graficos + 1
+
+        #print(f"\nEl número de gráficos es: {num_graficos}\n")  # SOLO PARA PRUEBAS BORRAR ANTES DE ENTREGAR
+
+        #Generamos los gráficos
+        if num_graficos == 1:
+            
+            lista = lista_columnas_pairplot.copy()
+            lista.append(target_col)
+            
+            sns.pairplot(df[lista], height=3, aspect=1.5)
+            
+        else:
+            
+            for i in range(0,num_graficos):
+                #Creamos listas con las distintas columnas a relacionar con el target
+                lista = lista_columnas_pairplot[(limite_pairplot-1)*i:(limite_pairplot-1)*i+(limite_pairplot-1)].copy()
+                lista.append(target_col)
+                
+                #print(lista) # SOLO PARA PRUEBAS BORRAR ANTES DE ENTREGAR
+                
+                sns.pairplot(df[lista], height=2, aspect=1.5)
+
+        return lista_columnas_pairplot
 
 
 #Función get_features_cat_regression (encargado: Rogelio)
