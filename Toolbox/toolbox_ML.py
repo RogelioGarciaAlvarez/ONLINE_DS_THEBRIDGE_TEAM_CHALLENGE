@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+import numpy as np
 
 from scipy.stats import pearsonr
 
@@ -80,21 +81,39 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
 
     return df_tipifica 
 
-#Función get_features_num_regression (encargado: Marion)
-def get_features_num_regression():
-    """
-    Descripción breve de lo que hace la función.
+#Función get_features_num_regression (encargado: Estela)
+def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float, pvalue: float = None) -> list:
+    #la funcion devuelve none si todas las comprobaciones dan error
+    #primero: comprueba si la variable target esta en el dataframe
+    if target_col not in df.columns: 
+        print("Error:", target_col, "no es una columna del dataframe.")
+        return None
+    #segundo: comprueba si es una variable continua
+    elif df[target_col].dtype != np.number:
+        print("Error:", target_col, "no es una variable numérica continua.")
+        return None
+    #tercero: comprueba que el umbral de correlacion este entre 0 y 1
+    elif not 0 <= umbral_corr <= 1:
+        print("Error:", umbral_corr, "no es un número entre 0 y 1.")
+        return None
+    #cuarto: comprueba que el pvalue sea distinto de none
+    elif pvalue is not None and (not isinstance(pvalue, float) or not 0 <= pvalue <= 1):
+        print("Error:", pvalue, "no es un valor adecuado para el p-value.")
+        return None
 
-    Argumentos:
-    param1 (tipo): Descripción de param1.
-    param2 (tipo): Descripción de param2.
-
-    Retorna:
-    tipo: Descripción de lo que retorna la función.
-    """
-    #Cuerpo de la función
+    #definimos la matriz de correlacion
+    corr_matrix = df.corr()
+    corr_target = corr_matrix[target_col]
+    #devuelve las correlaciones que cumplen que el valor absoluto de cada correlacion es mayor que el valor del umbral de correlacion
+    corr_target = corr_target[np.abs(corr_target) > umbral_corr]
     
-    return "X"
+    #si el pvalue no es none
+    if pvalue is not None:
+        #filtra las columnas numericas cuya correlacion con target_col es mayor en valor absoluto al umbral_corr
+        #y que supera el test de hipotesis con pvalue mayor o igual a 1
+        corr_target = corr_target[[i for i in corr_target.index if i != target_col and pvalue < 1 - stats.pearsonr(df[i], df[target_col])[1]]]
+    #devuelve una lista con los índices de las columnas que cumplen las condiciones
+    return corr_target.index.tolist()
 
 #Función plot_features_num_regression (encargado: Rogelio)
 def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=0, umbral_pvalue=None, limite_pairplot=5):
