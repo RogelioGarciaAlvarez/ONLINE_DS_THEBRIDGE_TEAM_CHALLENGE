@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
-
+from scipy.stats import chi2_contingency 
 from scipy.stats import pearsonr
 
 #Función describe_df (encargado: Marion)
@@ -325,7 +325,6 @@ def get_features_cat_regression():
     return "X"
 
 #Función plot_features_cat_regression (encargado: Numa)
-def plot_features_cat_regression():
     """
     Descripción breve de lo que hace la función.
 
@@ -336,6 +335,46 @@ def plot_features_cat_regression():
     Retorna:
     tipo: Descripción de lo que retorna la función.
     """
-    #Cuerpo de la función
+def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.05, with_individual_plot=False):
+
+    # Verificar los valores de entrada
+    if not isinstance(dataframe, pd.DataFrame):
+        raise ValueError("El primer argumento debe ser un dataframe.")
     
-    return "X"
+    if target_col not in dataframe.columns:
+        raise ValueError(f"La columna '{target_col}' no existe en el dataframe.")
+    
+    if not isinstance(columns, list):
+        raise ValueError("El argumento 'columns' debe ser una lista.")
+    
+    if not all(col in dataframe.columns for col in columns):
+        raise ValueError("Al menos una de las columnas especificadas en 'columns' no existe en el dataframe.")
+    
+    if not isinstance(pvalue, (float, int)):
+        raise ValueError("El argumento 'pvalue' debe ser un número.")
+    
+    if not isinstance(with_individual_plot, bool):
+        raise ValueError("El argumento 'with_individual_plot' debe ser un valor booleano.")
+    
+    # Si la lista 'columns' está vacía, asignar las variables numéricas del dataframe
+    if not columns:
+        columns = dataframe.select_dtypes(include=['number']).columns.tolist()
+    
+    # Almacenar las columnas que cumplen las condiciones
+    significant_columns = []
+    
+    for col in columns:
+        # Realizar el test de chi-cuadrado entre la variable categórica y la target
+        contingency_table = pd.crosstab(dataframe[col], dataframe[target_col])
+        _, p_val, _, _ = chi2_contingency(contingency_table)
+        
+        # Comprobar si el p-valor es significativo
+        if p_val <= (1 - pvalue):
+            significant_columns.append(col)
+            
+            # Si se especifica, plotear el histograma agrupado
+    
+            if with_individual_plot:
+                sns.histplot(data=dataframe, x=target_col, hue=col, multiple="stack", kde=True)
+                
+    return significant_columns
