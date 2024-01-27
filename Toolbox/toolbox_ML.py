@@ -8,15 +8,17 @@ from scipy.stats import pearsonr
 
 #Función describe_df (encargado: Marion)
 def describe_df():
+
     """
-    Descripción breve de lo que hace la función.
+    Función que calcula y muestra diferentes tipos de datos de un DataFrame
 
     Argumentos:
-    param1 (tipo): Descripción de param1.
-    param2 (tipo): Descripción de param2.
+    Obtener tipos de columnas
+    Calcular porcentaje de valores nulos
+    Obtener valores únicos y porcentaje de cardinalidad
 
     Retorna:
-    tipo: Descripción de lo que retorna la función.
+    DataFrame: Devuelve un DataFrame que resume la información
     """
     #Cuerpo de la función
     
