@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
-from scipy.stats import chi2_contingency 
+from scipy.stats import chi2_contingency
+from scipy.stats import f_oneway #Analisis de varianza o Anova
+from scipy.stats import ttest_ind #Test-T
 from scipy.stats import pearsonr
 
 #Función describe_df (encargado: Marion)
@@ -24,7 +26,7 @@ def describe_df():
     
     return "X"
 
-
+#############################################################################################################################
 
 #Función tipifica_variables (encargado: Rogelio)
 def tipifica_variables(df, umbral_categoria, umbral_continua):
@@ -84,6 +86,8 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
     df_tipifica = pd.DataFrame({"nombre_variable": df.columns.tolist(), "tipo_variable":lista_tipos, "cardinalidad":lista_cardinalidad, "cardinalidad_porcentaje":lista_cardinalidad_porcentaje, "tipo_sugerido":lista_tipificacion})
 
     return df_tipifica 
+
+#############################################################################################################################
 
 #Función get_features_num_regression (encargado: Estela)
 def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float, pvalue: float = None) -> list:
@@ -196,7 +200,7 @@ def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=
     elif limite_pairplot < 2:
         error_limite_pairplot = True
 
-    #Comprobamos si ha habido algñun un error y mostramos el mensaje de error en cada caso
+    #Comprobamos si ha habido algun un error y mostramos el mensaje de error en cada caso
     error = error_df or error_target_col or error_lista_columnas or error_umbral_corr or error_umbral_pvalue or error_limite_pairplot
     if error: 
         if error_df:
@@ -282,22 +286,101 @@ def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=
 
         return lista_columnas_pairplot
 
+#############################################################################################################################
 
 #Función get_features_cat_regression (encargado: Rogelio)
-def get_features_cat_regression():
+def get_features_cat_regression(df, target_col, umbral_pvalue=0.05):
+    
     """
-    Descripción breve de lo que hace la función.
-
+    Función que devuelve una lista con las variables (columnas) categóricas de un DataFrame que superan el test de relación con confianza estadística dada otra variable target numérica.
+  
     Argumentos:
-    param1 (tipo): Descripción de param1.
-    param2 (tipo): Descripción de param2.
+    df (DataFrame): DataFrame que contiene las variables para las que queremos evaluar la relación con confianza estadística.
+    target_col (string): Nombre de la variable del DataFrame considerada como target.
+    umbral_pvalue (float) = valor máximo de pvalue para seleccionar las variables.
 
     Retorna:
-    tipo: Descripción de lo que retorna la función.
+    Lista: devuelve una lista con los nombres de las columnas que cumplen las condiciones.
     """
-    #Cuerpo de la función
     
-    return "X"
+    #Comprobamos que los valores de entrada tienen el tipo correcto
+
+    #Comprobamos para el argumento df
+    error_df = False
+    if not(isinstance(df, pd.DataFrame)):
+        error_df = True
+
+    #Comprobamos para el argumento target_col
+    error_target_col = False
+    if not(isinstance(target_col, str)):
+        error_target_col = True
+
+    if target_col not in df.columns.tolist():
+        error_target_col = True
+    
+    elif df[target_col].dtypes != float:
+        error_target_col = True
+
+    #Comprobamos para el argumento umbral_pvalue
+    error_umbral_pvalue = False
+    if not(isinstance(umbral_pvalue, (int, float))):
+        error_umbral_pvalue = True
+    
+    elif umbral_pvalue < 0 or umbral_pvalue > 1:
+        error_umbral_pvalue = True
+
+    #Comprobamos si ha habido algun un error y mostramos el mensaje de error en cada caso
+    error = error_df or error_target_col or error_umbral_pvalue
+    if error: 
+        if error_df:
+            print("Introduce un DataFrame")
+        elif error_target_col:
+            print("Introduce un string con el nombre de la variable numérica target del DataFrame")  
+        elif error_umbral_pvalue:
+            print("Introduce un valor entero o decimal para el umbral del pvalue y que esté comprendido entre 0.0 y 1.0")
+    
+        return None
+        
+    else:
+        
+        #Creamos una lista con las columnas numericas del DataFrame
+        lista_columnas_categoricas = df.select_dtypes(include=['object']).columns.tolist()
+
+        #Comprobamos si superan el test de correlación
+        for columna in lista_columnas_categoricas.copy():
+            
+            if df[columna].nunique() == 2: #Variable categórica binaria --> Test-T
+
+                #Creamos una lista con los dos valores de la variable
+                valores = df[columna].unique().tolist()
+                
+                #Calculamos el pvalue y comprobamos su valor
+                grupo_a = df.loc[df[columna] == valores[0], target_col]
+                grupo_b = df.loc[df[columna] == valores[1], target_col]
+                pvalue = ttest_ind(grupo_a, grupo_b).pvalue
+            
+            else: #Variable categórica no binaria --> ANOVA
+
+                #Obtenemos los valores únicos de la variable categórica
+                valores = df[columna].unique()
+
+                #Creamos una lista donde guardar los distintos grupos
+                lista_grupos = []
+                
+                #Separamos los datos en tantos grupos como valores tenga la variable categorica
+                for valor in valores:
+                    lista_grupos.append(df.loc[df[columna] == valor, target_col])
+
+                #Calculamos el pvalue y comprobamos su valor
+                pvalue = f_oneway(*lista_grupos).pvalue #El operador * lo que hace es separar todos los elementos de la lista y pasarselos como argumento a la función
+                
+            #Si el pvalue es mayor que el umbral se elimina la columna
+            if pvalue > umbral_pvalue:
+                lista_columnas_categoricas.remove(columna)
+
+        return lista_columnas_categoricas
+
+#############################################################################################################################
 
 #Función plot_features_cat_regression (encargado: Numa)
     """
@@ -353,3 +436,5 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
                 sns.histplot(data=dataframe, x=target_col, hue=col, multiple="stack", kde=True)
                 
     return significant_columns
+
+#############################################################################################################################
