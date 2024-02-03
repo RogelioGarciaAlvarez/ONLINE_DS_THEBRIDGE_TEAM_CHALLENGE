@@ -432,8 +432,17 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
             
             # Si se especifica, plotear el histograma agrupado
     
-            if with_individual_plot:
-                sns.histplot(data=dataframe, x=target_col, hue=col, multiple="stack", kde=True)
+    if with_individual_plot:
+        fig, axs = plt.subplots((len(significant_columns)// 2) + 1, 2, figsize=(20, 20))
+        axs= axs.flatten()
+      
+# Recorrer la lista de nombres de columnas y crear textos en cada subgráfico
+        for i in range(len(significant_columns)):
+            sns.histplot(data= dataframe,x = significant_columns[i], hue= target_col, ax= axs[i])
+     
+    
+        if len(significant_columns) % 2 != 0: 
+            axs[-1].axis("Off")
                 
     return significant_columns
 
