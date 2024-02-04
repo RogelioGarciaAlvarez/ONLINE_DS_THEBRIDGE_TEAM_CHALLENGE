@@ -22,9 +22,33 @@ def describe_df():
     Retorna:
     DataFrame: Devuelve un DataFrame que resume la información
     """
-    #Cuerpo de la función
-    
-    return "X"
+
+# Función
+def describir_df(df_titanic):
+    # Obtener tipos de columnas
+    tipos = df_titanic.dtypes
+
+    # Calcular porcentaje de valores nulos
+    porcentaje_faltante = (df_titanic.isnull().mean() * 100).round(2)
+
+    # Obtener valores únicos y porcentaje de cardinalidad
+    valores_unicos = df_titanic.nunique()
+    porcentaje_cardinalidad = ((valores_unicos / len(df_titanic)) * 100).round(2)
+
+    # Crear un DataFrame con la información recopilada
+    resultado_df = pd.DataFrame({
+        'Tipos': tipos,
+        '% Faltante': porcentaje_faltante,
+        'Valores Únicos': valores_unicos,
+        '% Cardinalidad': porcentaje_cardinalidad
+    })
+
+    return resultado_df
+
+
+# Mostrar el resultado
+resultado_df = describir_df(df_titanic)
+resultado_df 
 
 #############################################################################################################################
 
