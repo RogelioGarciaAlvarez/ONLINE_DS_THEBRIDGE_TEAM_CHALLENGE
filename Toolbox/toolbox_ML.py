@@ -134,10 +134,11 @@ def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: 
         return None
 
     #definimos la matriz de correlacion
-    corr_matrix = df.corr()
-    corr_target = corr_matrix[target_col]
+    corr_matrix = df.corr(numeric_only=True)
+    corr_target = corr_matrix[[target_col]].abs()
+    
     #devuelve las correlaciones que cumplen que el valor absoluto de cada correlacion es mayor que el valor del umbral de correlacion
-    corr_target = corr_target[np.abs(corr_target) > umbral_corr]
+    corr_target = corr_target[corr_target[target_col] > umbral_corr]
     
     #si el pvalue no es none
     if pvalue is not None:
