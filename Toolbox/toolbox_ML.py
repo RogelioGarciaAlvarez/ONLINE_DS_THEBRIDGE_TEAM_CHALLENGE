@@ -8,11 +8,11 @@ from scipy.stats import f_oneway #Analisis de varianza o Anova
 from scipy.stats import ttest_ind #Test-T
 from scipy.stats import pearsonr
 
-#Función describe_df (encargado: Marion)
-def describe_df():
 
-    """
-    Función que calcula y muestra diferentes tipos de datos de un DataFrame
+
+#Función describe_df (encargado: Marion)
+"""
+   Función que calcula y muestra diferentes tipos de datos de un DataFrame
 
     Argumentos:
     Obtener tipos de columnas
@@ -46,9 +46,6 @@ def describir_df(df_titanic):
     return resultado_df
 
 
-# Mostrar el resultado
-resultado_df = describir_df(df_titanic)
-resultado_df 
 
 #############################################################################################################################
 
