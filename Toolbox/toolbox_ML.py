@@ -5,35 +5,32 @@ import seaborn as sns
 import numpy as np
 from scipy.stats import chi2_contingency
 from scipy.stats import f_oneway #Analisis de varianza o Anova
-from scipy.stats import ttest_ind #Test-T
+from scipy.stats import mannwhitneyu #Prueba U de Man-Whitney
 from scipy.stats import pearsonr
 
 
 
 #Función describe_df (encargado: Marion)
-"""
-   Función que calcula y muestra diferentes tipos de datos de un DataFrame
+def describe_df(df):
+    """
+    Función que calcula y muestra diferentes tipos de datos de un DataFrame
 
     Argumentos:
-    Obtener tipos de columnas
-    Calcular porcentaje de valores nulos
-    Obtener valores únicos y porcentaje de cardinalidad
+    df (DataFrame): DataFrame cuyas variables queremos describir.
 
     Retorna:
     DataFrame: Devuelve un DataFrame que resume la información
     """
-
-# Función
-def describir_df(df_titanic):
+    
     # Obtener tipos de columnas
-    tipos = df_titanic.dtypes
+    tipos = df.dtypes
 
     # Calcular porcentaje de valores nulos
-    porcentaje_faltante = (df_titanic.isnull().mean() * 100).round(2)
+    porcentaje_faltante = (df.isnull().mean() * 100).round(2) #CREO QUE ESTO ESTA MAL
 
     # Obtener valores únicos y porcentaje de cardinalidad
-    valores_unicos = df_titanic.nunique()
-    porcentaje_cardinalidad = ((valores_unicos / len(df_titanic)) * 100).round(2)
+    valores_unicos = df.nunique()
+    porcentaje_cardinalidad = ((valores_unicos / len(df)) * 100).round(2)
 
     # Crear un DataFrame con la información recopilada
     resultado_df = pd.DataFrame({
@@ -44,8 +41,6 @@ def describir_df(df_titanic):
     })
 
     return resultado_df
-
-
 
 #############################################################################################################################
 
@@ -112,6 +107,18 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
 
 #Función get_features_num_regression (encargado: Estela)
 def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float, pvalue: float = None) -> list:
+    
+    """
+    Descripción breve de lo que hace la función.
+
+    Argumentos:
+    param1 (tipo): Descripción de param1.
+    param2 (tipo): Descripción de param2.
+
+    Retorna:
+    tipo: Descripción de lo que retorna la función.
+    """
+    
     #la funcion devuelve none si todas las comprobaciones dan error
     #primero: comprueba si la variable target esta en el dataframe
     if target_col not in df.columns: 
@@ -141,9 +148,11 @@ def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: 
     if pvalue is not None:
         #filtra las columnas numericas cuya correlacion con target_col es mayor en valor absoluto al umbral_corr
         #y que supera el test de hipotesis con pvalue mayor o igual a 1
-        corr_target = corr_target[[i for i in corr_target.index if i != target_col and pvalue < 1 - stats.pearsonr(df[i], df[target_col])[1]]]
+        corr_target = corr_target[[i for i in corr_target.index if i != target_col and pvalue < 1 - pearsonr(df[i], df[target_col])[1]]]
     #devuelve una lista con los índices de las columnas que cumplen las condiciones
     return corr_target.index.tolist()
+
+#############################################################################################################################
 
 #Función plot_features_num_regression (encargado: Rogelio)
 def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=0, umbral_pvalue=None, limite_pairplot=5):
@@ -272,8 +281,6 @@ def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=
                 #Calculamos el pvalue y comprobamos su valor
                 pvalue = pearsonr(df[target_col], df[columna]).pvalue
                 
-                #print(f"El pvalue de {columna} es {pvalue}") # SOLO PARA PRUEBAS BORRAR ANTES DE ENTREGAR
-                
                 #Si el pvalue es mayor que el umbral se elimina la columna
                 if pvalue > umbral_pvalue:
                     lista_columnas_pairplot.remove(columna)
@@ -284,8 +291,6 @@ def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=
 
         if len(lista_columnas_pairplot) % (limite_pairplot-1) != 0:
             num_graficos = num_graficos + 1
-
-        #print(f"\nEl número de gráficos es: {num_graficos}\n")  # SOLO PARA PRUEBAS BORRAR ANTES DE ENTREGAR
 
         #Generamos los gráficos
         if num_graficos == 1:
@@ -301,8 +306,6 @@ def plot_features_num_regression(df, target_col, lista_columnas="", umbral_corr=
                 #Creamos listas con las distintas columnas a relacionar con el target
                 lista = lista_columnas_pairplot[(limite_pairplot-1)*i:(limite_pairplot-1)*i+(limite_pairplot-1)].copy()
                 lista.append(target_col)
-                
-                #print(lista) # SOLO PARA PRUEBAS BORRAR ANTES DE ENTREGAR
                 
                 sns.pairplot(df[lista], height=2, aspect=1.5)
 
@@ -371,7 +374,7 @@ def get_features_cat_regression(df, target_col, umbral_pvalue=0.05):
         #Comprobamos si superan el test de correlación
         for columna in lista_columnas_categoricas.copy():
             
-            if df[columna].nunique() == 2: #Variable categórica binaria --> Test-T
+            if df[columna].nunique() == 2: #Variable categórica binaria --> U Mann-Withney
 
                 #Creamos una lista con los dos valores de la variable
                 valores = df[columna].unique().tolist()
@@ -379,7 +382,7 @@ def get_features_cat_regression(df, target_col, umbral_pvalue=0.05):
                 #Calculamos el pvalue y comprobamos su valor
                 grupo_a = df.loc[df[columna] == valores[0], target_col]
                 grupo_b = df.loc[df[columna] == valores[1], target_col]
-                pvalue = ttest_ind(grupo_a, grupo_b).pvalue
+                pvalue = mannwhitneyu(grupo_a, grupo_b).pvalue
             
             else: #Variable categórica no binaria --> ANOVA
 
@@ -405,6 +408,7 @@ def get_features_cat_regression(df, target_col, umbral_pvalue=0.05):
 #############################################################################################################################
 
 #Función plot_features_cat_regression (encargado: Numa)
+
     """
     Descripción breve de lo que hace la función.
 
@@ -415,6 +419,7 @@ def get_features_cat_regression(df, target_col, umbral_pvalue=0.05):
     Retorna:
     tipo: Descripción de lo que retorna la función.
     """
+    
 def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.05, with_individual_plot=False):
 
     # Verificar los valores de entrada
@@ -452,17 +457,15 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
         if p_val <= (1 - pvalue):
             significant_columns.append(col)
             
-            # Si se especifica, plotear el histograma agrupado
-    
+    # Si se especifica, plotear el histograma agrupado
     if with_individual_plot:
         fig, axs = plt.subplots((len(significant_columns)// 2) + 1, 2, figsize=(20, 20))
         axs= axs.flatten()
       
-# Recorrer la lista de nombres de columnas y crear textos en cada subgráfico
+    # Recorrer la lista de nombres de columnas y crear textos en cada subgráfico
         for i in range(len(significant_columns)):
             sns.histplot(data= dataframe,x = significant_columns[i], hue= target_col, ax= axs[i])
-     
-    
+
         if len(significant_columns) % 2 != 0: 
             axs[-1].axis("Off")
                 
