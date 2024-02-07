@@ -409,15 +409,20 @@ def get_features_cat_regression(df, target_col, umbral_pvalue=0.05):
 
 #Función plot_features_cat_regression (encargado: Numa)
 
-    """
-    Descripción breve de lo que hace la función.
+"""
+    Realiza un análisis de las características categóricas en relación con una variable objetivo en un dataframe, 
+    identificando las características significativas y, opcionalmente, trazando histogramas agrupados.
 
     Argumentos:
-    param1 (tipo): Descripción de param1.
-    param2 (tipo): Descripción de param2.
+    dataframe (pd.DataFrame): El dataframe que contiene los datos.
+    target_col (str): El nombre de la columna que representa la variable objetivo.
+    columns (list): Una lista de nombres de columnas categóricas para analizar. Si no se proporciona, 
+                    se utilizarán todas las columnas numéricas del dataframe.
+    pvalue (float): El nivel de significancia para considerar una característica como significativa en el análisis.
+    with_individual_plot (bool): Indica si se deben trazar histogramas agrupados para las características significativas.
 
     Retorna:
-    tipo: Descripción de lo que retorna la función.
+    list: Una lista de nombres de columnas categóricas que se consideran significativas en relación con la variable objetivo.
     """
     
 def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.05, with_individual_plot=False):
