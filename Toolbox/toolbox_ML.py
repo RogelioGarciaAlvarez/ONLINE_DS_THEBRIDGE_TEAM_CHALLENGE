@@ -3,12 +3,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import numpy as np
-from scipy.stats import chi2_contingency
+
+from scipy.stats import chi2_contingency #Test Chi2
 from scipy.stats import f_oneway #Analisis de varianza o Anova
 from scipy.stats import mannwhitneyu #Prueba U de Man-Whitney
 from scipy.stats import pearsonr
-
-
 
 #Función describe_df (encargado: Marion)
 def describe_df(df):
@@ -26,7 +25,7 @@ def describe_df(df):
     tipos = df.dtypes
 
     # Calcular porcentaje de valores nulos
-    porcentaje_faltante = (df.isnull().mean() * 100).round(2) #CREO QUE ESTO ESTA MAL
+    porcentaje_faltante = (df.isnull().sum() * 100).round(2)
 
     # Obtener valores únicos y porcentaje de cardinalidad
     valores_unicos = df.nunique()
@@ -40,7 +39,7 @@ def describe_df(df):
         '% Cardinalidad': porcentaje_cardinalidad
     })
 
-    return resultado_df
+    return resultado_df.T
 
 #############################################################################################################################
 
