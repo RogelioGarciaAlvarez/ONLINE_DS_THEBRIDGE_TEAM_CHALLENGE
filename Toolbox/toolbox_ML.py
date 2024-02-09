@@ -25,7 +25,7 @@ def describe_df(df):
     tipos = df.dtypes
 
     # Calcular porcentaje de valores nulos
-    porcentaje_faltante = (df.isnull().sum() * 100).round(2)
+    porcentaje_faltante = (df.isnull().mean() * 100).round(2)
 
     # Obtener valores únicos y porcentaje de cardinalidad
     valores_unicos = df.nunique()
@@ -126,14 +126,17 @@ def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: 
     if target_col not in df.columns: 
         print("Error:", target_col, "no es una columna del dataframe.")
         return None
+    
     #segundo: comprueba si es una variable continua
     elif df[target_col].dtype != np.number:
         print("Error:", target_col, "no es una variable numérica continua.")
         return None
+    
     #tercero: comprueba que el umbral de correlacion este entre 0 y 1
     elif not 0 <= umbral_corr <= 1:
         print("Error:", umbral_corr, "no es un número entre 0 y 1.")
         return None
+    
     #cuarto: comprueba que el pvalue sea distinto de none
     elif pvalue is not None and (not isinstance(pvalue, float) or not 0 <= pvalue <= 1):
         print("Error:", pvalue, "no es un valor adecuado para el p-value.")
@@ -150,9 +153,16 @@ def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: 
     if pvalue is not None:
         #filtra las columnas numericas cuya correlacion con target_col es mayor en valor absoluto al umbral_corr
         #y que supera el test de hipotesis con pvalue mayor o igual a 1
-        corr_target = corr_target[[i for i in corr_target.index if i != target_col and pvalue < 1 - pearsonr(df[i], df[target_col])[1]]]
+        corr_target = corr_target.loc[[i for i in corr_target.index if i != target_col and pvalue > pearsonr(df[i], df[target_col])[1]]]
+    
+    lista_variables = corr_target.index.tolist()
+    
+    if pvalue is None:
+        # quitamos el target del DataFrame
+        lista_variables.remove(target_col)
+        
     #devuelve una lista con los índices de las columnas que cumplen las condiciones
-    return corr_target.index.tolist()
+    return lista_variables
 
 #############################################################################################################################
 
@@ -450,7 +460,7 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
     
     # Si la lista 'columns' está vacía, asignar las variables numéricas del dataframe
     if not columns:
-        columns = dataframe.select_dtypes(include=['number']).columns.tolist()
+        columns = dataframe.select_dtypes(include=['object']).columns.tolist()
     
     # Almacenar las columnas que cumplen las condiciones
     significant_columns = []
@@ -461,17 +471,22 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
         _, p_val, _, _ = chi2_contingency(contingency_table)
         
         # Comprobar si el p-valor es significativo
-        if p_val <= (1 - pvalue):
+        if p_val <= pvalue:
             significant_columns.append(col)
             
     # Si se especifica, plotear el histograma agrupado
+    num_graficos = len(significant_columns) // 2
+    
+    if len(significant_columns) % 2 != 0:
+        num_graficos = num_graficos + 1
+    
     if with_individual_plot:
-        fig, axs = plt.subplots((len(significant_columns)// 2) + 1, 2, figsize=(20, 20))
+        fig, axs = plt.subplots(num_graficos, 2, figsize=(20, 20))
         axs= axs.flatten()
       
     # Recorrer la lista de nombres de columnas y crear textos en cada subgráfico
         for i in range(len(significant_columns)):
-            sns.histplot(data= dataframe,x = significant_columns[i], hue= target_col, ax= axs[i])
+            sns.histplot(data= dataframe,x = target_col , hue = significant_columns[i], ax= axs[i], kde=True)
 
         if len(significant_columns) % 2 != 0: 
             axs[-1].axis("Off")
