@@ -109,14 +109,17 @@ def tipifica_variables(df, umbral_categoria, umbral_continua):
 def get_features_num_regression(df: pd.DataFrame, target_col: str, umbral_corr: float, pvalue: float = None) -> list:
     
     """
-    Descripción breve de lo que hace la función.
-
+    Función que devuelve una lista con las variables numéricas de un dataframe cuya correlación con la variable target sea superior en valor absoluto al valor del umbral de correlación.
+    Si el pvalue es distinto de None, sólo devolvera las variables numéricas cuya correlación supere el valor indicado y además supere el test de hipótesis con significación mayor o igual a 1-pvalue.
+    
     Argumentos:
-    param1 (tipo): Descripción de param1.
-    param2 (tipo): Descripción de param2.
+    df (DataFrame): DataFrame que queremos evaluar.
+    target_col (string): Nombre de la variable del DataFrame considerada como target.
+    umbral_corr (float): umbral de correlación que debe estar entre 0 y 1.
+    pvalue (float) = valor por defecto None.
 
     Retorna:
-    tipo: Descripción de lo que retorna la función.
+    Lista: devuelve una lista con los nombres de las columnas que cumplen las condiciones.
     """
     
     #la funcion devuelve none si todas las comprobaciones dan error
