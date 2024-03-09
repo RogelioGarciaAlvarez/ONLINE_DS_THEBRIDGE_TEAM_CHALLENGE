@@ -494,3 +494,90 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
     return significant_columns
 
 #############################################################################################################################
+
+#Función eval_model (encargado: Marion/Rogelio)
+
+"""
+    Realiza XXX
+
+    Argumentos:
+    XXXX
+
+    Retorna:
+    XXX
+    """
+    
+def eval_model():
+
+
+#############################################################################################################################
+
+#Función get_features_num_classification (encargado: Rogelio) ¡¡¡ES MUY SIMILAR A get_features_cat_regression!!!
+
+"""
+    Realiza XXX
+
+    Argumentos:
+    XXXX
+
+    Retorna:
+    XXX
+    """
+    
+def get_features_num_classification():
+
+
+#############################################################################################################################
+
+#Función plot_features_num_classification (encargado: Rogelio) ¡¡¡ES MUY SIMILAR A plot_features_num_regression!!!
+
+"""
+    Realiza XXX
+
+    Argumentos:
+    XXXX
+
+    Retorna:
+    XXX
+    """
+    
+def plot_features_num_classification():
+
+
+#############################################################################################################################
+
+#Función get_features_cat_classification (encargado: Estela) ¡¡¡ES MUY SIMILAR A get_features_num_regression!!!
+
+"""
+    Realiza XXX
+
+    Argumentos:
+    XXXX
+
+    Retorna:
+    XXX
+    """
+    
+def get_features_cat_classification():
+
+
+#############################################################################################################################
+
+#Función plot_features_cat_classification (encargado: Numa) ¡¡¡ES MUY SIMILAR A plot_features_cat_regression!!!
+
+"""
+    Realiza XXX
+
+    Argumentos:
+    XXXX
+
+    Retorna:
+    XXX
+    """
+    
+def plot_features_cat_classification():
+
+
+#############################################################################################################################
+
+
