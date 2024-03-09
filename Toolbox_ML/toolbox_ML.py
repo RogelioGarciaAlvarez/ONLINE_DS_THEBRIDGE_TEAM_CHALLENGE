@@ -496,26 +496,10 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
 #############################################################################################################################
 
 #Función eval_model (encargado: Marion/Rogelio)
-
-"""
-    Realiza XXX
-
-    Argumentos:
-    XXXX
-
-    Retorna:
-    XXX
-    """
-    
+  
 def eval_model():
     
-    return None
-
-#############################################################################################################################
-
-#Función get_features_num_classification (encargado: Rogelio) ¡¡¡ES MUY SIMILAR A get_features_cat_regression!!!
-
-"""
+    """
     Realiza XXX
 
     Argumentos:
@@ -525,51 +509,248 @@ def eval_model():
     XXX
     """
     
-def get_features_num_classification():
-    
     return None
 
 #############################################################################################################################
 
-#Función plot_features_num_classification (encargado: Rogelio) ¡¡¡ES MUY SIMILAR A plot_features_num_regression!!!
+#Función get_features_num_classification (encargado: Rogelio)
 
-"""
-    Realiza XXX
-
+def get_features_num_classification(df, target_col, umbral_discreta=10, umbral_pvalue=0.05):
+    """
+    Función que devuelve una lista con las variables (columnas) numéricas de un DataFrame que superan el test de relación con confianza estadística dada otra variable target categórica.
+  
     Argumentos:
-    XXXX
+    df (DataFrame): DataFrame que contiene las variables para las que queremos evaluar la relación con confianza estadística.
+    target_col (string): Nombre de la variable del DataFrame considerada como target.
+    umbral_discreta (int): valor máximo de los valores únicos para un target categórico o numérico discreto.
+    umbral_pvalue (float) = valor máximo de pvalue para seleccionar las variables.
 
     Retorna:
-    XXX
+    Lista: devuelve una lista con los nombres de las columnas que cumplen las condiciones.
     """
     
-def plot_features_num_classification():
+    #Comprobamos que los valores de entrada tienen el tipo correcto
     
-    return None
+    #Comprobamos para el argumento df
+    if not(isinstance(df, pd.DataFrame)):
+        print("Introduce un DataFrame")
+        return None
+    
+    #Comprobamos para el argumento target_col y umbral_discreta
+    if not(isinstance(target_col, str)):
+        print("Introduce un string con el nombre del target categórico del DataFrame")
+        return None
+    
+    if target_col not in df.columns.tolist():
+        print("Introduce un string con el nombre del target categórico del DataFrame")
+        return None
+    
+    elif not(isinstance(umbral_discreta, (int,float))):
+        print("Introduce un valor entero o decimal para el umbral del target categórico")
+        return None
+    
+    elif df[target_col].nunique() > umbral_discreta:
+        print("Los valores únicos del target categórico son mayores que el umbral definido")
+        return None
+    
+    #Comprobamos para el argumento umbral_pvalue
+    if not(isinstance(umbral_pvalue, (int, float))):
+        print("Introduce un valor entero o decimal para el umbral del pvalue y que esté comprendido entre 0.0 y 1.0")
+        return None
+    
+    elif umbral_pvalue < 0 or umbral_pvalue > 1:
+        print("Introduce un valor entero o decimal para el umbral del pvalue y que esté comprendido entre 0.0 y 1.0")
+        return None
+      
+    #Creamos una lista con las columnas numericas del DataFrame
+    lista_columnas_numericas = []
+
+    for columna in df:        
+        try: 
+            pd.to_numeric(df[columna], errors='raise')
+            lista_columnas_numericas.append(columna) 
+            
+        except:
+            pass
+    
+    #Comprobamos si se ha incluido el target en la lista (puede ser numérica discreta) para eliminarlo
+    if target_col in lista_columnas_numericas:
+        lista_columnas_numericas.remove(target_col)
+
+    #Comprobamos si superan el test de correlación
+    for columna in lista_columnas_numericas.copy():
+        
+        #Obtenemos los valores únicos del target categórico
+        valores = df[target_col].unique()
+        
+        #Creamos una lista donde guardar los distintos grupos
+        lista_grupos = []
+        
+        #Separamos los datos en tantos grupos como valores tenga el target categorico
+        for valor in valores:
+            lista_grupos.append(df.loc[df[target_col] == valor, columna])   
+        
+        #Calculamos el pvalue y comprobamos su valor
+        pvalue = f_oneway(*lista_grupos).pvalue #El operador * lo que hace es separar todos los elementos de la lista y pasarselos como argumento a la función
+        
+        #Si el pvalue es mayor que el umbral se elimina la columna
+        if pvalue > umbral_pvalue:
+            lista_columnas_numericas.remove(columna)
+
+    return lista_columnas_numericas  
 
 #############################################################################################################################
 
-#Función get_features_cat_classification (encargado: Estela) ¡¡¡ES MUY SIMILAR A get_features_num_regression!!!
+#Función plot_features_num_classification (encargado: Rogelio)
 
-"""
-    Realiza XXX
+def plot_features_num_classification(df, target_col, umbral_discreta=10, lista_columnas=[], umbral_pvalue=0.05, limite_pairplot=5):
+    
+    """
+    Función que genera los gráficos pairplot de las variables (columnas) de un DataFrame que superan el test de relación con confianza estadística dada otra variable target categórica.
 
     Argumentos:
-    XXXX
+    df (DataFrame): DataFrame que contiene las variables para las que queremos generar los gráficos pairplot.
+    target_col (string): Nombre de la variable del DataFrame considerada como target.
+    umbral_discreta (int): valor máximo de los valores únicos para un target categórico o numérico discreto.
+    lista_columnas (lista) = Nombres de las columnas del DataFrame para las que queremos generar los gráficos pairplot.
+    umbral_pvalue (float) = valor máximo de pvalue para seleccionar las variables.
+    limite_pairplot (int) = valor máximo de variables a generar en los gráficos pairplot.
 
     Retorna:
-    XXX
+    Lista: devuelve una lista con los nombres de las columnas numéricas que cumplen las condiciones.
     """
     
+    #Comprobamos que los valores de entrada tienen el tipo correcto
+    
+    #Comprobamos para el argumento df
+    if not(isinstance(df, pd.DataFrame)):
+        print("Introduce un DataFrame")
+        return None
+    
+    #Comprobamos para el argumento target_col y umbral_discreta
+    if not(isinstance(target_col, str)):
+        print("Introduce un string con el nombre del target categórico del DataFrame")
+        return None
+    
+    if target_col not in df.columns.tolist():
+        print("Introduce un string con el nombre del target categórico del DataFrame")
+        return None
+    
+    elif not(isinstance(umbral_discreta, (int,float))):
+        print("Introduce un valor entero o decimal para el umbral del target categórico")
+        return None
+    
+    elif df[target_col].nunique() > umbral_discreta:
+        print("Los valores únicos del target categórico son mayores que el umbral definido")
+        return None
+    
+    #Comprobamos para el argumento lista_columnas
+    if not(isinstance(lista_columnas, list)):
+        print("Introduce una lista con los nombres de las columnas del DataFrame a analizar")
+        return None
+    
+    for columna in lista_columnas:
+        if columna == target_col:
+            print("Se ha introducido una lista que incluye la columna target del DataFrame a analizar")
+            return None
+
+        if columna not in df.columns.tolist():
+            print("Se ha introducido una lista con columnas que no pertenecen al DataFrame a analizar")
+            return None
+    
+    #Comprobamos para el argumento umbral_pvalue
+    if not(isinstance(umbral_pvalue, (int, float))):
+        print("Introduce un valor entero o decimal para el umbral del pvalue y que esté comprendido entre 0.0 y 1.0")
+        return None
+    
+    elif umbral_pvalue < 0 or umbral_pvalue > 1:
+        print("Introduce un valor entero o decimal para el umbral del pvalue y que esté comprendido entre 0.0 y 1.0")
+        return None
+
+    #Comprobamos para el argumento limite_pairplot
+    if not(isinstance(limite_pairplot, int)):
+        print("Introduce un valor entero con el límite de variables a representar en el pairplot")
+        return None
+
+    elif limite_pairplot < 2:
+        print("El valor introducido debe ser mayor o igual a 2")
+        return None
+    
+    #Comprobamos la lista de columnas a analizar
+    if lista_columnas == []:
+        columnas_analizar = df.columns.tolist()
+    
+    else:
+        columnas_analizar = lista_columnas
+    
+    #Creamos una lista con las columnas numericas del DataFrame de entre las que vamos a analizar
+    lista_columnas_numericas = []
+
+    for columna in columnas_analizar:        
+        try: 
+            pd.to_numeric(df[columna], errors='raise')
+            lista_columnas_numericas.append(columna) 
+            
+        except:
+            pass
+    
+    #Comprobamos si se ha incluido el target en la lista (puede ser numérica discreta) para eliminarlo
+    if target_col in lista_columnas_numericas:
+        lista_columnas_numericas.remove(target_col)
+    
+    #Comprobamos si superan el test de correlación
+    for columna in lista_columnas_numericas.copy():
+        
+        #Obtenemos los valores únicos del target categórico
+        valores = df[target_col].unique()
+        
+        #Creamos una lista donde guardar los distintos grupos
+        lista_grupos = []
+        
+        #Separamos los datos en tantos grupos como valores tenga el target categorico
+        for valor in valores:
+            lista_grupos.append(df.loc[df[target_col] == valor, columna])   
+        
+        #Calculamos el pvalue y comprobamos su valor
+        pvalue = f_oneway(*lista_grupos).pvalue #El operador * lo que hace es separar todos los elementos de la lista y pasarselos como argumento a la función
+        
+        #Si el pvalue es mayor que el umbral se elimina la columna
+        if pvalue > umbral_pvalue:
+            lista_columnas_numericas.remove(columna)
+    
+    #Calculamos cuántos gráficos hay que generar
+    num_graficos = (len(lista_columnas_numericas) // (limite_pairplot))
+    
+    if len(lista_columnas_numericas) % (limite_pairplot) != 0:
+        num_graficos = num_graficos + 1
+
+    #Generamos los gráficos
+    if num_graficos == 1:
+    
+        lista = lista_columnas_numericas.copy()
+        lista.append(target_col)
+    
+        sns.pairplot(df[lista], hue=target_col, palette="viridis", height=3, aspect=1.5)
+
+    else:
+        
+        for i in range(0,num_graficos):
+            
+            #Creamos listas con las distintas columnas a relacionar con el target
+            lista = lista_columnas_numericas[(limite_pairplot)*i:(limite_pairplot)*i+(limite_pairplot)].copy()
+            lista.append(target_col)
+            
+            sns.pairplot(df[lista], hue=target_col, palette="viridis", height=2, aspect=1.5)
+
+    return lista_columnas_numericas 
+
+#############################################################################################################################
+
+#Función get_features_cat_classification (encargado: Estela)
+
 def get_features_cat_classification():
     
-    return None
-
-#############################################################################################################################
-
-#Función plot_features_cat_classification (encargado: Numa) ¡¡¡ES MUY SIMILAR A plot_features_cat_regression!!!
-
-"""
+    """
     Realiza XXX
 
     Argumentos:
@@ -579,7 +760,23 @@ def get_features_cat_classification():
     XXX
     """
     
+    return None
+
+#############################################################################################################################
+
+#Función plot_features_cat_classification (encargado: Numa)
+    
 def plot_features_cat_classification():
+    
+    """
+    Realiza XXX
+
+    Argumentos:
+    XXXX
+
+    Retorna:
+    XXX
+    """
     
     return None
 
