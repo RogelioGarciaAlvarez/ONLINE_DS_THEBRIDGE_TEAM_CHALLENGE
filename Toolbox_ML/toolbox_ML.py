@@ -508,7 +508,8 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
     """
     
 def eval_model():
-
+    
+    return None
 
 #############################################################################################################################
 
@@ -525,7 +526,8 @@ def eval_model():
     """
     
 def get_features_num_classification():
-
+    
+    return None
 
 #############################################################################################################################
 
@@ -542,7 +544,8 @@ def get_features_num_classification():
     """
     
 def plot_features_num_classification():
-
+    
+    return None
 
 #############################################################################################################################
 
@@ -559,7 +562,8 @@ def plot_features_num_classification():
     """
     
 def get_features_cat_classification():
-
+    
+    return None
 
 #############################################################################################################################
 
@@ -576,7 +580,8 @@ def get_features_cat_classification():
     """
     
 def plot_features_cat_classification():
-
+    
+    return None
 
 #############################################################################################################################
 
