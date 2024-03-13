@@ -748,19 +748,49 @@ def plot_features_num_classification(df, target_col, umbral_discreta=10, lista_c
 
 #Función get_features_cat_classification (encargado: Estela)
 
-def get_features_cat_classification():
-    
+def get_features_cat_classification(df, target_col, normalize=False, mi_threshold=0):
     """
-    Realiza XXX
+    Devuelve una lista de variables categóricas basado en la información mutua con el target.
 
     Argumentos:
-    XXXX
+        df: dataframe.
+        target_col (str): nombre del target (variable categórica).
+        normalize (bool): su valor por defecto es False.
+        mi_threshold (float): umbral de información mutua cuyo valor por defecto es 0.
 
-    Retorna:
-    XXX
+    Devuelve:
+        lista: lista de las variables categóricas.
     """
-    
-    return None
+    #Comprobamos si el target existe en el dataframe
+    if target_col not in df.columns: #si el target no está en las columnas del dataframe
+        print("Error: ", target_col, "no es una columna del dataframe.") #imprime un error
+        return None #devuelve none
+
+    #Comprobamos si el target es una variable categórica
+    if not pd.api.types.is_categorical_dtype(df[target_col]): #función que tiene como argumento el target y verifica si es categórica o no
+        #si no es una variable categórica
+        print("Error: ", target_col, "no es una variable categórica.") #imprime un error
+        return None #devuelve none
+
+    #Calculamos la información mutua entre las variables (excepto el target) y el target.
+    mi_values = mutual_info_classif(df.drop(columns=[target_col]), df[target_col], discrete_features=True) #discrete_features=True indica que las variables son categóricas
+
+    #Normalizamos la información mutua
+    if normalize: #si normalizamos devuelve una lista con las variables categóricas cuyo valor normalizado de información mutua con el target iguale o supere el valor del umbral de información mutua
+        total_mi = sum(mi_values) #calculamos la suma total de los valores de información mutua
+        mi_values = [mi / total_mi for mi in mi_values] #normalizamos cada valor de información mutua dividiéndolo por el total
+
+        #Comprobamos si el umbral de información mutua es un float entre 0 y 1
+        if not (0 <= mi_threshold <= 1): #si el umbral no está entre 0 y 1
+            print("Error: 'mi_threshold' no está entre 0 y 1.") #imprime un error
+            return None #devuelve none
+
+    #Creamos una lista de variables categóricas basada en el umbral de información mutua (mi_threshold)
+    selected_features = [col for col, mi in zip(df.drop(columns=[target_col]).columns, mi_values) if mi >= mi_threshold]
+    #zip(df.drop(columns=[target_col]).columns, mi_values -> combina las variables (excepto el target) con los valores de información mutua
+    #para cada par de variable y valor de información mutua: si el valor de información mutua es mayor o igual que el umbral, agrega el nombre de la variable a la lista 
+
+    return selected_features #devuelve la lista de variables categóricas
 
 #############################################################################################################################
 
