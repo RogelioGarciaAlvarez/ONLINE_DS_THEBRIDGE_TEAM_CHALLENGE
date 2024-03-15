@@ -9,6 +9,8 @@ from scipy.stats import f_oneway #Analisis de varianza o Anova
 from scipy.stats import mannwhitneyu #Prueba U de Man-Whitney
 from scipy.stats import pearsonr
 from sklearn.feature_selection import mutual_info_classif
+import warnings 
+warnings.filterwarnings("ignore")
 
 #Función describe_df (encargado: Marion)
 def describe_df(df):
