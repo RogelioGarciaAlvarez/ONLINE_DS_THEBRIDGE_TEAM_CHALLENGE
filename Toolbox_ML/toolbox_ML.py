@@ -12,6 +12,13 @@ from sklearn.feature_selection import mutual_info_classif
 import warnings 
 warnings.filterwarnings("ignore")
 
+from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, confusion_matrix
+from sklearn.metrics import ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+
+
 #Función describe_df (encargado: Marion)
 def describe_df(df):
     """
@@ -497,22 +504,121 @@ def plot_features_cat_regression(dataframe, target_col="", columns=[], pvalue=0.
     return significant_columns
 
 #############################################################################################################################
-
-#Función eval_model (encargado: Marion/Rogelio)
   
-def eval_model():
-    
+#Función eval_model (encargado: Marion)
+  
+def eval_model(target, predicciones, tipo_de_problema, metricas):
     """
-    Realiza XXX
+    Evalúa un modelo de Machine Learning utilizando diferentes métricas 
 
     Argumentos:
-    XXXX
+    target (tipo array): Valores reales del target
+    predicciones (tipo array): Valores predichos por el modelo
+    tipo_de_problema (str): puede ser de 'regresion' o 'clasificacion'
+    metricas (list): Lista de métricas a calcular y a mostrar:
+                     Para problemas de regresión: 'RMSE', 'MAE', 'MAPE', 'GRAPH'
+                     Para problemas de clasificación: 'ACCURACY', 'PRECISION', 'RECALL', 'CLASS_REPORT', 'MATRIX', 'MATRIX_RECALL', 'MATRIX_PRED', 'PRECISION_X', 'RECALL_X'
 
     Retorna:
-    XXX
+    tupla: Una tupla con los valores de las métricas especificadas en el orden indicado de la lista de métricas
     """
-    
-    return None
+
+    results = []
+
+    #REGRESION
+
+    if tipo_de_problema == 'regresion':
+        for metrica in metricas:
+            
+            if metrica == 'RMSE':
+                rmse = np.sqrt(mean_squared_error(target, predicciones))
+                print(f"RMSE: {rmse}")
+                results.append(rmse)
+            
+            elif metrica == 'MAE':
+                mae = mean_absolute_error(target, predicciones)
+                print(f"MAE: {mae}")
+                results.append(mae)
+
+            elif metrica == 'MAPE':
+                try:
+                    mape = np.mean(np.abs((target - predicciones) / target)) * 100
+                    print(f"MAPE: {mape}")
+                    results.append(mape)
+
+                #Imprimir ValueError
+                except ZeroDivisionError:
+                    raise ValueError("No se puede calcular MAPE cuando hay valores de target iguales a cero.")
+           
+            elif metrica == 'GRAPH':
+                plt.figure(figsize=(8, 6))
+                plt.scatter(target, predicciones)
+                plt.xlabel('Real')
+                plt.ylabel('Predicción')
+                plt.title('Gráfico de dispersión de Predicciones vs Real')
+                plt.show()
+
+     #CLASIFICACION
+                
+    elif tipo_de_problema == 'clasificacion':
+        for metrica in metricas:
+            
+            if metrica == 'ACCURACY':
+                accuracy = accuracy_score(target, predicciones)
+                print(f"Accuracy: {accuracy}")
+                results.append(accuracy)
+
+            elif metrica == 'PRECISION':
+                precision = precision_score(target, predicciones, average='macro')
+                print(f"Precision: {precision}")
+                results.append(precision)
+
+            elif metrica == 'RECALL':
+                recall = recall_score(target, predicciones, average='macro')
+                print(f"Recall: {recall}")
+                results.append(recall)
+
+            elif metrica == 'CLASS_REPORT':
+                print("Classification Report:")
+                print(classification_report(target, predicciones))
+
+            elif metrica == 'MATRIX':
+                print("Confusion Matrix (Absolute Values):")
+                print(confusion_matrix(target, predicciones))
+
+            elif metrica == 'MATRIX_RECALL':
+                disp = ConfusionMatrixDisplay(confusion_matrix=confusion_matrix(target, predicciones))
+                disp.plot(normalize='true')
+                plt.title('Confusion Matrix (Normalized by Recall)')
+                plt.show()
+
+            elif metrica == 'MATRIX_PRED':
+                disp = ConfusionMatrixDisplay(confusion_matrix=confusion_matrix(target, predicciones))
+                disp.plot(normalize='pred')
+                plt.title('Confusion Matrix (Normalized by Prediction)')
+                plt.show()
+
+            elif 'PRECISION_' in metrica:
+                class_label = metrica.split('_')[-1] # Obtener la etiqueta de clase de la métrica
+                try:
+                    precision_class = precision_score(target, predicciones, labels=[class_label])
+                    print(f"Precision for class {class_label}: {precision_class}")
+                    results.append(precision_class)
+                except ValueError:
+                    raise ValueError(f"La clase {class_label} no está presente en las predicciones.")
+                
+            elif 'RECALL_' in metrica:
+                class_label = metrica.split('_')[-1]
+                try:
+                    recall_class = recall_score(target, predicciones, labels=[class_label])
+                    print(f"Recall for class {class_label}: {recall_class}")
+                    results.append(recall_class)
+                except ValueError:
+                    raise ValueError(f"La clase {class_label} no está presente en las predicciones.")
+    else:
+        raise ValueError("El tipo de problema debe ser 'regresion' o 'clasificacion'.")
+
+    return tuple(results)
 
 #############################################################################################################################
 
