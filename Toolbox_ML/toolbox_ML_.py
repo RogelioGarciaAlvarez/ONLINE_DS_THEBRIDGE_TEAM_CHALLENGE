@@ -569,7 +569,7 @@ def eval_model(target, predicciones, tipo_de_problema, metricas):
                 results.append(accuracy)
 
             elif metrica == 'PRECISION':
-                precision = precision_score(target, predi, average='macro')
+                precision = precision_score(target, predicciones, average='macro')
                 print(f"Precision: {precision}")
                 results.append(precision)
 
@@ -601,7 +601,7 @@ def eval_model(target, predicciones, tipo_de_problema, metricas):
             elif 'PRECISION_' in metrica:
                 class_label = metrica.split('_')[-1] # Obtener la etiqueta de clase de la métrica
                 try:
-                    precision_class = precision_score(target, predicciones, labels=[class_label])
+                    precision_class = precision_score(target, predicciones, labels=[class_label], average = None )
                     print(f"Precision for class {class_label}: {precision_class}")
                     results.append(precision_class)
                 except ValueError:
